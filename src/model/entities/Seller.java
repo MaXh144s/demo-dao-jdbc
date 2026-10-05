@@ -1,7 +1,7 @@
 package model.entities;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.sql.Date;
 
 public class Seller implements Serializable{
 
@@ -10,7 +10,7 @@ public class Seller implements Serializable{
     private Integer id;
     private String name;
     private String email;
-    private LocalDate birthdate;
+    private Date birthdate;
     private Double baseSalary;
 
     private Department department;
@@ -18,7 +18,7 @@ public class Seller implements Serializable{
     public Seller() {
     }
 
-    public Seller(Integer id, String name, String email, LocalDate birthdate, Double baseSalary, Department department) {
+    public Seller(Integer id, String name, String email, Date birthdate, Double baseSalary, Department department) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -51,11 +51,11 @@ public class Seller implements Serializable{
         this.email = email;
     }
 
-    public LocalDate getBirthdate() {
+    public Date getBirthdate() {
         return birthdate;
     }
 
-    public void setBirthdate(LocalDate birthdate) {
+    public void setBirthdate(Date birthdate) {
         this.birthdate = birthdate;
     }
 
