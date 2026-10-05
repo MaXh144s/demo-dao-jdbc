@@ -24,5 +24,9 @@ public class Program {
 
         list.forEach(System.out::println);
 
+        System.out.println("=== TEST 3: Seller findByDepartment ===");
+        list = sl.findAll();
+
+        list.forEach(System.out::println);
     }
 }
