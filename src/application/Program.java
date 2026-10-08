@@ -4,59 +4,127 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Scanner;
 
+import db.DbException;
 import model.dao.DaoFactory;
 import model.dao.SellerDao;
 import model.entities.Department;
 import model.entities.Seller;
 
 public class Program {
+
+    private static final Scanner sc = new Scanner(System.in);
+    private static final SellerDao sellerDao = DaoFactory.createSellerDao();
+
     public static void main(String[] args) {
-
-        Scanner sc = new Scanner(System.in);
-
-        SellerDao sellerDao = DaoFactory.createSellerDao();
-
-        System.out.println("=== TEST 1: Seller findById ===");
-        Seller seller = sellerDao.findById(3);
-
-        System.out.println(seller);
-
-        System.out.println("=== TEST 2: Seller findByDepartment ===");
-        Department dp = new Department(2, null);
-
-        List<Seller> list = sellerDao.findByDepartment(dp);
-
-        list.forEach(System.out::println);
-
-        System.out.println("=== TEST 3: Seller findByDepartment ===");
-        list = sellerDao.findAll();
-
-        list.forEach(System.out::println);
-
-        System.out.println("=== TEST 4: Seller Insert ===");
-        Seller newSeller = new Seller(null, "Greg", "Greg@gmail.com", new Date(0), 4000.0, dp);
-        sellerDao.insert(newSeller);
-        System.out.println("Inserted! New id = " + newSeller.getId());
-
-        System.out.println("=== TEST 5: Seller update ===");
-        seller = sellerDao.findById(1);
-        seller.setName("Martha Waine");
-        sellerDao.update(seller);
-        System.out.println("Updated completed!");
-
-        while (true) {
-            System.out.println("=== TEST 6: Seller delete ===");
-            System.out.println("Enter id for delete test: ");
-            int id = sc.nextInt();
-
-            if (id < 0) {
-                break;
+        boolean running = true;
+        while (running) {
+            printMenu();
+            System.out.print("Opção: ");
+            int option = sc.nextInt();
+            sc.nextLine();
+            try {
+                switch (option) {
+                    case 1 -> findById();
+                    case 2 -> findByDepartment();
+                    case 3 -> findAll();
+                    case 4 -> insert();
+                    case 5 -> update();
+                    case 6 -> delete();
+                    case 0 -> running = false;
+                }
+            } catch (DbException e) {
+                System.out.println("Erro: " + e.getMessage());
             }
-
-            sellerDao.deleteById(id);
-            System.out.println("Delete completed");
-
         }
         sc.close();
+    }
+
+    private static void printMenu() {
+        System.out.println("\n==============================");
+        System.out.println("      GERENCIADOR DE SELLERS  ");
+        System.out.println("==============================");
+        System.out.println(" 1 - Buscar por ID");
+        System.out.println(" 2 - Buscar por departamento");
+        System.out.println(" 3 - Listar todos");
+        System.out.println(" 4 - Inserir");
+        System.out.println(" 5 - Atualizar");
+        System.out.println(" 6 - Remover");
+        System.out.println(" 0 - Sair");
+        System.out.println("------------------------------");
+    }
+
+    private static void findById() {
+        System.out.print("Digite o Id para pesquisa: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+        Seller seller = sellerDao.findById(id);
+
+        if (seller == null) {
+            System.out.println("Nenhum seller encontrado com id " + id + ".");
+            return;
+        }
+        System.out.println(seller);
+    }
+
+    private static void findByDepartment() {
+        System.out.print("Digite o Id do department: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+        printList(sellerDao.findByDepartment(new Department(id, null)));
+    }
+
+    private static void findAll() {
+        printList(sellerDao.findAll());
+    }
+
+    private static void insert() {
+        Seller seller = instantiateSeller(null);
+        sellerDao.insert(seller);
+        System.out.println("Inserção concluída. Novo id = " + seller.getId());
+    }
+
+    private static void update() {
+        System.out.print("Digite o Id do seller que deseja atualizar: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+        sellerDao.update(instantiateSeller(id));
+        System.out.println("Update concluído.");
+    }
+
+    private static void delete() {
+        System.out.print("Digite o Id do seller que deseja remover: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+        sellerDao.deleteById(id);
+        System.out.println("Deleção concluída.");
+    }
+
+    private static void printList(List<Seller> list) {
+        if (list.isEmpty()) {
+            System.out.println("Nenhum seller encontrado.");
+            return;
+        }
+        list.forEach(System.out::println);
+    }
+
+    private static Seller instantiateSeller(Integer id) {
+        System.out.print("Digite o nome: ");
+        String name = sc.nextLine();
+
+        System.out.print("Digite o email: ");
+        String email = sc.nextLine();
+
+        System.out.print("Digite a data de nascimento (yyyy-MM-dd): ");
+        Date birthDate = Date.valueOf(sc.nextLine());
+
+        System.out.print("Digite o salário base: ");
+        double salary = sc.nextDouble();
+        sc.nextLine();
+
+        System.out.print("Digite o Id do department: ");
+        int depId = sc.nextInt();
+        sc.nextLine();
+
+        return new Seller(id, name, email, birthDate, salary, new Department(depId, null));
     }
 }
